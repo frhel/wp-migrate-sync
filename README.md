@@ -1,5 +1,5 @@
 # wp-migrate-sync
-A simple tool to migrate or sync wordpress instances.
+[WIP] - A simple tool to migrate or sync wordpress instances
 
 Will use the official WordPress CLI to copy databases.
 Will use rsync to copy files
