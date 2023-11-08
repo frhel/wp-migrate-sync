@@ -61,7 +61,7 @@ impl WpCliInterface {
     fn clean_up_download(&self) {
         let mut cli = BashOperations::new();
         // Check if the file exists before trying to remove it
-        if !cli.file_exists("wp-cli.phar") {
+        if !cli.file_exists("wp-cli.phar", "") {
             return;
         }
 

@@ -5,12 +5,14 @@ pub struct BashOperations {
     // The message is used to display to the user what is happening
     // The command is the actual command that is run
     operations: Vec<(&'static str, &'static str)>,
+    pub directory: String,
 }
 
 impl BashOperations {
     pub fn new() -> BashOperations {
         BashOperations {
             operations: Vec::new(),
+            directory: String::from("./"),
         }
     }
 
@@ -53,10 +55,10 @@ impl BashOperations {
         }       
     }
 
-    pub fn file_exists(&self, file: &str) -> bool {
-        let output = self.bash(&format!("[ -f {} ] && echo 'true' || echo 'false'", file));
-        let output_str = String::from_utf8_lossy(&output.stdout).to_ascii_lowercase();
-        output_str.contains("true")
+    pub fn file_exists(&self, file: &str, dir: &str) -> bool {
+        let dir = if dir == "" { &self.directory } else { dir };
+        let output = self.bash(&format!("ls {}/{}", dir, file));
+        !self.has_error(&output)
     }
 
     pub fn error_check(&self, command: &String) -> bool {
@@ -85,6 +87,21 @@ impl BashOperations {
             .unwrap_or_else(|e| panic!("Failed to execute process: {}", e));
         output
     }
+
+    pub fn prompt_input(&self, message: &str) -> String {
+        let mut input = String::new();
+        println!("{}", message);
+        std::io::stdin().read_line(&mut input).expect("Failed to read line");
+        input.trim().to_string()
+    }
+
+    pub fn prompt_bool(&self, message: &str) -> bool {
+        let input = self.prompt_input(message);
+        match input.as_str() {
+            "y" | "Y" | "yes" | "Yes" | "YES" => true,
+            _ => false,
+        }
+    }
 }
 
 
@@ -104,8 +121,8 @@ fn verify_cli_add() {
 #[test]
 fn verify_cli_file_exists() {
     let cli = BashOperations::new();
-    assert_eq!(cli.file_exists("src/main.rs"), true);
-    assert_eq!(cli.file_exists("src/main.rss"), false);
+    assert_eq!(cli.file_exists("src/main.rs", ""), true);
+    assert_eq!(cli.file_exists("src/main.rss", ""), false);
 }
 
 #[test]
